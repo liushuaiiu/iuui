@@ -1,0 +1,93 @@
+---
+import type { MarkdownInstance } from 'astro';
+
+interface Frontmatter {
+  title: string;
+  tags: string[];
+  date?: string;
+}
+
+// 👇 技巧在这里：先把要返回的结构定义好，起个名字叫 TagPath
+// 这样就不用在函数后面写一大串复杂的符号了
+interface TagPath {
+  params: { tag: string };
+  props: { posts: MarkdownInstance<Frontmatter>[] };
+}
+
+// 👇 现在这里写起来非常干净，编译器绝对能看懂，TS 也开心
+export async function getStaticPaths(): Promise<TagPath[]> {
+  const allPosts = await Astro.glob<Frontmatter>('../posts/*.md');
+
+  const uniqueTags = [...new Set(allPosts.map((post) => {
+    return post.frontmatter.tags || [];
+  }).flat())];
+
+  return uniqueTags.map((tag) => {
+    const filteredPosts = allPosts.filter((post) => {
+      const postTags = post.frontmatter.tags || [];
+      return postTags.includes(tag);
+    });
+    
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+interface Props {
+  posts: MarkdownInstance<Frontmatter>[];
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>标签: {tag}</title>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back-link">← 返回首页</a>
+      <h1>包含 <span class="highlight">#{tag}</span> 的文章</h1>
+
+      <ul class="post-list">
+        {posts.map((post) => (
+          <li>
+            <a href={post.url || '#'} class="post-link">{post.frontmatter.title}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        color: #111;
+        max-width: 680px;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 2rem;
+        color: #666;
+        text-decoration: none;
+      }
+      h1 { margin-bottom: 3rem; font-size: 2rem; }
+      .highlight { color: #666; text-decoration: underline; }
+      .post-list { list-style: none; padding: 0; }
+      .post-list li { margin-bottom: 1.5rem; }
+      .post-link { 
+        font-size: 1.25rem; 
+        font-weight: 600; 
+        color: #000; 
+        text-decoration: none; 
+      }
+      .post-link:hover { text-decoration: underline; }
+    </style>
+  </body>
+</html>

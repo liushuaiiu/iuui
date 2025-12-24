@@ -1,0 +1,61 @@
+---
+const { frontmatter } = Astro.props;
+---
+
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{frontmatter.title}</title>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="back-link">返回首页</a>
+      <h1>{frontmatter.title}</h1>
+      <p class="meta">{frontmatter.date}</p>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <style>
+      body {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        font-family: system-ui, -apple-system, sans-serif;
+        color: #111;
+        line-height: 1.8; /* 正文行高大一点，阅读舒服 */
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 2rem;
+        text-decoration: none;
+        color: #666;
+        font-size: 0.9rem;
+      }
+      .back-link:hover { text-decoration: underline; color: #000; }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+      }
+
+      .meta {
+        color: #888;
+        margin-bottom: 3rem;
+        font-size: 0.9rem;
+      }
+
+      /* 针对 Markdown 内容的样式 */
+      main :global(h2) { font-size: 1.8rem; margin-top: 2rem; font-weight: 700; }
+      main :global(p) { margin-bottom: 1.5rem; }
+      main :global(strong) { font-weight: 800; }
+      main :global(a) { color: #000; text-decoration: underline; }
+    </style>
+  </body>
+</html>

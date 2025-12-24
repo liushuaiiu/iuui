@@ -1,189 +1,55 @@
 ---
-// 1. JS 区域
+import { getCollection } from "astro:content";
+import HomeLayout from "../layouts/HomeLayout.astro";
+
 const pageTitle = "iuui";
 const description = "欢迎，希望有所帮助！";
 
-import { getCollection } from "astro:content";
-
-// 1. 获取所有文章
+// 1. 获取并排序文章 (添加 :any 解决 TS 报错)
 const allPosts = await getCollection("posts");
-
-// 2. 文章排序 (最新的在最上面)
-// 修复：改变量名为 posts，避免冲突；改 frontmatter 为 data
-const posts = allPosts.sort((a, b) => {
+const posts = allPosts.sort((a: any, b: any) => {
   return new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf();
 });
 
-// 3. 收集标签并排序
-// 修复：改 frontmatter 为 data，并增加空值检查 (|| [])
+// 2. 标签处理
 const allTags = posts
-  .map((post) => post.data.tags || []) 
+  .map((post: any) => post.data.tags || []) 
   .flat()
-  .filter((tag) => typeof tag === "string");
+  .filter((tag: any) => typeof tag === "string");
 
-// 统计每个标签的出现次数
-const tagCounts = allTags.reduce((acc, tag) => {
+const tagCounts = allTags.reduce((acc: Record<string, number>, tag: string) => {
   acc[tag] = (acc[tag] || 0) + 1;
   return acc;
 }, {} as Record<string, number>); 
 
-// 标签排序：按数量降序，数量一样按字母顺序
-const tags = Object.keys(tagCounts).sort((a, b) => {
+const tags = Object.keys(tagCounts).sort((a: string, b: string) => {
   const countDiff = tagCounts[b] - tagCounts[a];
   return countDiff !== 0 ? countDiff : a.localeCompare(b);
 });
 ---
 
-<html lang="zh-cn">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>{pageTitle}</title>
-  </head>
-  <body>
-    <header>
-      <h1>{pageTitle}</h1>
-      <p class="description">{description}</p>
-    </header>
-
-    <div class="tags-container">
-      {tags.map((tag) => (
+<HomeLayout title={pageTitle} description={description}>
+  <div class="tags-container">
+    {tags.map((tag: string) => (
       <a href={`/tags/${tag}`} class="tag">{tag}</a>
     ))}
-    </div>
+  </div>
 
-    <main>
-      <ul class="post-list">
-        {
-          posts.map((post) => {
-            // 👇 修复日期逻辑：
-            // 1. 确保读取的是 data.date
-            // 2. 转换成 ISO 字符串 (2024-12-25) 再截取
-            const dateObj = new Date(post.data.date);
-            // 变成 "2024-12-25" 这种格式
-            const dateStr = dateObj.toISOString().split('T')[0];
-            // 截取掉前两位，变成 "24-12-25"
-            const shortDate = dateStr.slice(2); 
+  <main>
+    <ul class="post-list">
+      {posts.map((post: any) => {
+        const dateObj = new Date(post.data.date);
+        const shortDate = dateObj.toISOString().split('T')[0].slice(2); 
 
-            return (
-              <li>
-                <a href={`/posts/${post.data.slug || post.id}/`}>
-                  <span class="date">{shortDate}</span>
-                  <span class="title">{post.data.title}</span>
-                </a>
-              </li>
-            );
-          })
-        }
-      </ul>
-    </main>
-
-    <style>
-      /* 全局重置 */
-      * { box-sizing: border-box; }
-      
-      body {
-        max-width: 680px;
-        margin: 0 auto;
-        padding: 4rem 2rem;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        color: #333;
-        line-height: 1.6;
-      }
-
-      /* 头部区域容器 */
-      header {
-        margin-bottom: 3.5rem;
-      }
-
-      /* 1. Logo 优化 */
-      h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin: 0;
-        line-height: 1;
-        letter-spacing: -3px;
-        color: #000;
-        margin-bottom: 0.5rem;   
-      }
-      
-      /* 2. 副标题优化 */
-      .description {
-        font-size: 1rem;
-        color: #9ca3af;
-        font-weight: 400;
-        margin: 0;
-        letter-spacing: 1px;
-      }
-
-      /* 标签容器 */
-      .tags-container {
-        margin-bottom: 3.5rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.2rem; 
-      }
-      
-      /* 标签本体 */
-      .tag {
-        font-size: 0.9rem;
-        color: #888;
-        cursor: pointer;
-        text-decoration: underline;
-        text-decoration-color: #e5e7eb;
-        text-decoration-thickness: 1px;
-        text-underline-offset: 4px;
-        padding: 2px 4px; 
-        border-radius: 4px;
-        transition: all 0.2s;
-      }
-
-      .tag:hover { 
-        color: #000;
-        text-decoration-color: #000;
-        background-color: #f3f4f6;
-      }
-      
-      /* 文章列表区域 */
-      .post-list {
-        list-style: none;
-        padding: 0;
-      }
-      
-      .post-list li {
-        margin-bottom: 0.8rem;
-      }
-      
-      .post-list a {
-        display: flex;
-        align-items: baseline;
-        gap: 0.6rem;
-        text-decoration: none;
-        transition: opacity 0.2s;
-        padding: 4px 0;
-      }
-      
-      .post-list a:hover {
-        opacity: 0.7;
-      }
-
-      /* 日期样式 */
-      .date {
-        color: #999;
-        font-family: monospace;
-        font-size: 0.9rem;
-        font-weight: 400;
-        flex-shrink: 0;
-        min-width: 70px;
-      }
-
-      /* 标题样式 */
-      .title {
-        color: #222;
-        font-size: 1.05rem;
-        font-weight: 500;
-        line-height: 1.4;
-      }
-    </style>
-  </body>
-</html>
+        return (
+          <li>
+            <a href={`/posts/${post.data.slug || post.id}/`}>
+              <span class="date">{shortDate}</span>
+              <span class="title">{post.data.title}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </main>
+</HomeLayout>

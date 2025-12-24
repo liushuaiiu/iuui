@@ -1,0 +1,118 @@
+---
+// src/layouts/HomeLayout.astro
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <h1>{title}</h1>
+      <p class="description">{description}</p>
+    </header>
+
+    <slot />
+
+    <style is:global>
+      * { box-sizing: border-box; }
+      
+      body {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 6rem 2rem; /* 增加了顶部留白，更有呼吸感 */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+        background-color: #fff;
+        -webkit-font-smoothing: antialiased; /* 让字体看起来更纤细精致 */
+      }
+
+      header { margin-bottom: 4rem; }
+
+      h1 {
+        font-size: 4rem; /* 稍微加大 */
+        font-weight: 900;
+        margin: 0;
+        line-height: 0.9;
+        letter-spacing: -4px; /* 👈 核心：极度收紧，产生图形美感 */
+        color: #000;
+        margin-bottom: 0.8rem;   
+      }
+      
+      .description {
+        font-size: 0.95rem;
+        color: #a1a1aa; /* 更淡一点的灰色 */
+        letter-spacing: 0.05em;
+        font-weight: 400;
+      }
+
+      /* 标签云：找回精致感 */
+      .tags-container {
+        margin-bottom: 5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem; /* 增加间距 */
+      }
+      
+      .tag {
+        font-size: 0.9rem;
+        color: #71717a;
+        text-decoration: none; /* 先去掉下划线 */
+        border-bottom: 1px solid #f4f4f5; /* 用边框模拟更细的下划线 */
+        padding-bottom: 2px;
+        transition: all 0.2s ease;
+      }
+
+      .tag:hover { 
+        color: #000;
+        border-bottom-color: #000;
+      }
+      
+      /* 文章列表：增加行间距 */
+      .post-list { list-style: none; padding: 0; }
+      
+      .post-list li { 
+        margin-bottom: 0.6rem; /* 👈 增加每行之间的距离 */
+      }
+      
+      .post-list a {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem; /* 增加日期和标题的间距 */
+        text-decoration: none;
+        padding: 4px 0;
+      }
+      
+      .post-list a:hover .title {
+        color: #000;
+        opacity: 0.6;
+      }
+
+      .date {
+        color: #d4d4d8; 
+        font-family: "JetBrains Mono", Menlo, monospace;
+        font-size: 0.85rem;
+        /* 👇 把 min-width 删掉，或者改小 */
+        min-width: auto; 
+        /* 👇 或者如果你想要对齐，给一个更小的固定宽度，比如 70px */
+        /* width: 70px; */
+        flex-shrink: 0;
+        font-weight: 400;
+      }
+
+      .title {
+        color: #27272a;
+        font-size: 1.1rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+    </style>
+  </body>
+</html>

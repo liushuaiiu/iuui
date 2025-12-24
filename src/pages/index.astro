@@ -36,82 +36,131 @@ const tags = [...new Set(posts.map((post) => post.frontmatter.tags).flat())];
     <main>
       <ul class="post-list">
         {
-          posts.map((post) => (
-            <li>
-              <a href={post.url}>{post.frontmatter.title}</a>
-            </li>
-          ))
+          posts.map((post) => {
+            // 👇 1. 处理日期：如果有日期就截取后8位(25-12-11)，没有就显示空
+            const rawDate = post.frontmatter.date || "2000-01-01";
+            const shortDate = rawDate.slice(2); 
+
+            return (
+              <li>
+                <a href={post.url}>
+                  <span class="date">{shortDate}</span>
+                  <span class="title">{post.frontmatter.title}</span>
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
     </main>
 
     <style>
-      /* 👇 3. 这是你原本的样式，完全没动 */
+      /* 全局重置 */
       * { box-sizing: border-box; }
       
       body {
-        max-width: 680px; /* 限制最大宽度 */
-        margin: 0 auto;   /* 居中核心代码 */
+        max-width: 680px;
+        margin: 0 auto;
         padding: 4rem 2rem;
-        font-family: system-ui, -apple-system, sans-serif;
-        color: #111;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #333;
         line-height: 1.6;
       }
 
-      /* 头部大标题 */
-      h1 {
-        font-size: 3rem;
-        font-weight: 900;
-        margin: 0 0 1rem 0;
-        letter-spacing: -1px;
-      }
-      
-      .description {
-        font-size: 1.1rem;
-        color: #555;
-        margin-bottom: 3rem;
-        font-weight: 400;
+      /* 头部区域容器 */
+      header {
+        margin-bottom: 3.5rem; /* 整体距离下方内容的间距 */
       }
 
-      /* 标签 */
+      /* 1. Logo 优化 */
+      h1 {
+        font-size: 3.5rem;       /*稍微加大一点 */
+        font-weight: 800;        /* 特粗 */
+        margin: 0;               /* 去掉默认边距 */
+        line-height: 1;          /* 行高设为1，防止上下留白太多 */
+        letter-spacing: -3px;    /* 👈 关键：收紧字间距，让它看起来像个图形 */
+        color: #000;
+        
+        /* 可选：加一点点底部的间距给副标题 */
+        margin-bottom: 0.5rem;   
+      }
+      
+      /* 2. 副标题优化 */
+      .description {
+        font-size: 1rem;         /* 稍微小一点，更精致 */
+        color: #9ca3af;          /* 👈 关键：浅灰色，不要喧宾夺主 */
+        font-weight: 400;
+        margin: 0;               /* 去掉多余边距 */
+        letter-spacing: 1px;     /* 中文稍微加点字间距，更有呼吸感 */
+      }
+
+      /* 标签容器 */
       .tags-container {
-        margin-bottom: 4rem;
+        margin-bottom: 3.5rem;
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 1.2rem; 
       }
       
+      /* 标签本体 */
       .tag {
         font-size: 0.9rem;
-        color: #666;
+        color: #888;
         cursor: pointer;
-        text-decoration: none; /* 去掉下划线 */
-        /* background-color: #f4f4f5; 加个浅色背景更好看 */
-        /* padding: 4px 10px; */
+        text-decoration: underline;
+        text-decoration-color: #e5e7eb;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+        padding: 2px 4px; 
         border-radius: 4px;
+        transition: all 0.2s;
       }
-      .tag:hover { color: #000 !important; }
+
+      .tag:hover { 
+        color: #000;
+        text-decoration-color: #000;
+        background-color: #f3f4f6;
+      }
       
-      /* 文章列表 */
+      /* 👇👇👇 核心修改：文章列表区域 👇👇👇 */
       .post-list {
         list-style: none;
         padding: 0;
       }
       
       .post-list li {
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.8rem; /* 行间距 */
       }
       
       .post-list a {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #000;
+        display: flex;         /* 横向排列 */
+        align-items: baseline; /* 基线对齐，防止日期忽高忽低 */
+        gap: 0.6rem;           /* 日期和标题的间距 */
         text-decoration: none;
-        display: block;
+        transition: opacity 0.2s;
+        padding: 4px 0;        /* 增加一点点击区域 */
       }
       
       .post-list a:hover {
-        text-decoration: underline;
+        opacity: 0.7;
+      }
+
+      /* 日期样式：强制变细、变灰 */
+      .date {
+        color: #999;            /* 灰色 */
+        font-family: monospace; /* 等宽字体 */
+        font-size: 0.9rem;      /* 字号调小 */
+        font-weight: 400;       /* ⭐ 重点：强制不加粗 */
+        flex-shrink: 0;         /* 防止被挤压 */
+        min-width: 70px;        /* 稍微留点宽度余量 */
+      }
+
+      /* 标题样式：大小适中 */
+      .title {
+        color: #222;            /* 深黑色，不是死黑 */
+        font-size: 1.05rem;     /* ⭐ 重点：缩小字号，精致一点 */
+        font-weight: 500;       /* ⭐ 重点：字重减小，不再那么笨重 */
+        line-height: 1.4;
       }
     </style>
   </body>

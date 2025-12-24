@@ -119,11 +119,18 @@ const { frontmatter } = Astro.props;
       
       /* 正文链接 */
       .content :global(a) {
-        color: #0066cc;
-        text-decoration: none;
+        color: #333;                     /* 颜色：不再是蓝色，而是深灰 */
+        text-decoration: underline;      /* 保留划线 */
+        text-decoration-color: #d1d5db;  /* 划线颜色：很浅的灰色，不抢眼 */
+        text-decoration-thickness: 1px;  /* 划线粗细：细一点 */
+        text-underline-offset: 4px;      /* 划线位置：向下挪 4px，产生呼吸感 */
+        transition: all 0.2s;            /* 动画过渡 */
       }
       .content :global(a):hover {
-        text-decoration: underline;
+        color: #000;                     /* 文字变纯黑 */
+        text-decoration-color: #000;     /* 划线变纯黑 */
+        background-color: #f3f4f6;       /* 增加一个淡淡的灰色背景高亮 */
+        border-radius: 2px;              /* 背景圆角 */
       }
     </style>
   </body>

@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostLayout.astro
 slug: "AI_Bite_Sized2"
 title: "关于AI的一些轻科普"
 date: "2025-12-23"

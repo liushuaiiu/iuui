@@ -1,36 +1,37 @@
 ---
-
 // 1. JS 区域
 const pageTitle = "iuui";
 const description = "欢迎，希望有所帮助！";
 
-// 获取所有文章
-const allPosts = await Astro.glob('./posts/*.md');
+import { getCollection } from "astro:content";
 
-// 👇 2. 仅保留了这个排序功能 (最新的文章在最上面)
+// 1. 获取所有文章
+const allPosts = await getCollection("posts");
+
+// 2. 文章排序 (最新的在最上面)
+// 修复：改变量名为 posts，避免冲突；改 frontmatter 为 data
 const posts = allPosts.sort((a, b) => {
-  return new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf();
+  return new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf();
 });
 
-// 👇 3. 收集标签并排序（按文章数量从多到少）
+// 3. 收集标签并排序
+// 修复：改 frontmatter 为 data，并增加空值检查 (|| [])
 const allTags = posts
-  .map((post) => post.frontmatter.tags)
+  .map((post) => post.data.tags || []) 
   .flat()
   .filter((tag) => typeof tag === "string");
 
 // 统计每个标签的出现次数
-// 👇 修复点：加了 as Record<string, number>，告诉 TS 这是一个“字符串对应数字”的对象
 const tagCounts = allTags.reduce((acc, tag) => {
   acc[tag] = (acc[tag] || 0) + 1;
   return acc;
 }, {} as Record<string, number>); 
 
-// 排序
+// 标签排序：按数量降序，数量一样按字母顺序
 const tags = Object.keys(tagCounts).sort((a, b) => {
   const countDiff = tagCounts[b] - tagCounts[a];
   return countDiff !== 0 ? countDiff : a.localeCompare(b);
 });
-
 ---
 
 <html lang="zh-cn">
@@ -55,15 +56,20 @@ const tags = Object.keys(tagCounts).sort((a, b) => {
       <ul class="post-list">
         {
           posts.map((post) => {
-            // 👇 1. 处理日期：如果有日期就截取后8位(25-12-11)，没有就显示空
-            const rawDate = post.frontmatter.date || "2000-01-01";
-            const shortDate = rawDate.slice(2); 
+            // 👇 修复日期逻辑：
+            // 1. 确保读取的是 data.date
+            // 2. 转换成 ISO 字符串 (2024-12-25) 再截取
+            const dateObj = new Date(post.data.date);
+            // 变成 "2024-12-25" 这种格式
+            const dateStr = dateObj.toISOString().split('T')[0];
+            // 截取掉前两位，变成 "24-12-25"
+            const shortDate = dateStr.slice(2); 
 
             return (
               <li>
-                <a href={post.url}>
+                <a href={`/posts/${post.data.slug || post.id}/`}>
                   <span class="date">{shortDate}</span>
-                  <span class="title">{post.frontmatter.title}</span>
+                  <span class="title">{post.data.title}</span>
                 </a>
               </li>
             );
@@ -87,29 +93,27 @@ const tags = Object.keys(tagCounts).sort((a, b) => {
 
       /* 头部区域容器 */
       header {
-        margin-bottom: 3.5rem; /* 整体距离下方内容的间距 */
+        margin-bottom: 3.5rem;
       }
 
       /* 1. Logo 优化 */
       h1 {
-        font-size: 3.5rem;       /*稍微加大一点 */
-        font-weight: 800;        /* 特粗 */
-        margin: 0;               /* 去掉默认边距 */
-        line-height: 1;          /* 行高设为1，防止上下留白太多 */
-        letter-spacing: -3px;    /* 👈 关键：收紧字间距，让它看起来像个图形 */
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin: 0;
+        line-height: 1;
+        letter-spacing: -3px;
         color: #000;
-        
-        /* 可选：加一点点底部的间距给副标题 */
         margin-bottom: 0.5rem;   
       }
       
       /* 2. 副标题优化 */
       .description {
-        font-size: 1rem;         /* 稍微小一点，更精致 */
-        color: #9ca3af;          /* 👈 关键：浅灰色，不要喧宾夺主 */
+        font-size: 1rem;
+        color: #9ca3af;
         font-weight: 400;
-        margin: 0;               /* 去掉多余边距 */
-        letter-spacing: 1px;     /* 中文稍微加点字间距，更有呼吸感 */
+        margin: 0;
+        letter-spacing: 1px;
       }
 
       /* 标签容器 */
@@ -140,44 +144,44 @@ const tags = Object.keys(tagCounts).sort((a, b) => {
         background-color: #f3f4f6;
       }
       
-      /* 👇👇👇 核心修改：文章列表区域 👇👇👇 */
+      /* 文章列表区域 */
       .post-list {
         list-style: none;
         padding: 0;
       }
       
       .post-list li {
-        margin-bottom: 0.8rem; /* 行间距 */
+        margin-bottom: 0.8rem;
       }
       
       .post-list a {
-        display: flex;         /* 横向排列 */
-        align-items: baseline; /* 基线对齐，防止日期忽高忽低 */
-        gap: 0.6rem;           /* 日期和标题的间距 */
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
         text-decoration: none;
         transition: opacity 0.2s;
-        padding: 4px 0;        /* 增加一点点击区域 */
+        padding: 4px 0;
       }
       
       .post-list a:hover {
         opacity: 0.7;
       }
 
-      /* 日期样式：强制变细、变灰 */
+      /* 日期样式 */
       .date {
-        color: #999;            /* 灰色 */
-        font-family: monospace; /* 等宽字体 */
-        font-size: 0.9rem;      /* 字号调小 */
-        font-weight: 400;       /* ⭐ 重点：强制不加粗 */
-        flex-shrink: 0;         /* 防止被挤压 */
-        min-width: 70px;        /* 稍微留点宽度余量 */
+        color: #999;
+        font-family: monospace;
+        font-size: 0.9rem;
+        font-weight: 400;
+        flex-shrink: 0;
+        min-width: 70px;
       }
 
-      /* 标题样式：大小适中 */
+      /* 标题样式 */
       .title {
-        color: #222;            /* 深黑色，不是死黑 */
-        font-size: 1.05rem;     /* ⭐ 重点：缩小字号，精致一点 */
-        font-weight: 500;       /* ⭐ 重点：字重减小，不再那么笨重 */
+        color: #222;
+        font-size: 1.05rem;
+        font-weight: 500;
         line-height: 1.4;
       }
     </style>

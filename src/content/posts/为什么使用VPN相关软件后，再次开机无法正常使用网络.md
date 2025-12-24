@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostLayout.astro
 slug: "iuui-VPNerror"
 title: "为什么使用VPN相关软件后，再次开机无法正常使用网络"
 date: "2025-12-18"

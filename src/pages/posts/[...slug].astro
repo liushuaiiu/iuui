@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from 'astro:content'; // 1. 引入 render 函数
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(entry => ({
+    params: { 
+      // 记得刚才修过的：用 id 代替 slug
+      slug: entry.data.slug || entry.id 
+    }, 
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+
+// 2. 这里的写法变了！
+// 旧写法: const { Content } = await entry.render();
+// 新写法: 把 entry 传给 render 函数
+const { Content } = await render(entry);
+---
+
+<PostLayout frontmatter={entry.data}>
+  <Content />
+</PostLayout>

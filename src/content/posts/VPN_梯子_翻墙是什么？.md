@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostLayout.astro
 slug: "VPN_Beginner_Guide"
 title: "VPN/梯子/翻墙是什么？"
 date: "2025-12-18"

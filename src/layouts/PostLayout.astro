@@ -1,4 +1,15 @@
 ---
+// 👇 1. 定义类型，解决 ts(7006) 报错
+interface Frontmatter {
+  title: string;
+  date: string;
+  tags?: string[]; // 问号表示这个字段可能不存在
+}
+
+interface Props {
+  frontmatter: Frontmatter;
+}
+
 const { frontmatter } = Astro.props;
 ---
 
@@ -9,53 +20,111 @@ const { frontmatter } = Astro.props;
     <title>{frontmatter.title}</title>
   </head>
   <body>
-    <header>
-      <a href="/" class="back-link">返回首页</a>
-      <h1>{frontmatter.title}</h1>
-      <p class="meta">{frontmatter.date}</p>
-    </header>
+    
+    <a href="/" class="back-link">← Home</a>
 
-    <main>
-      <slot />
-    </main>
+    <article>
+      <h1>{frontmatter.title}</h1>
+      
+      <div class="meta-container">
+        <span class="date">{frontmatter.date}</span>
+        
+        {frontmatter.tags && frontmatter.tags.length > 0 && (
+          <div class="tags-list">
+            {/* 👇 现在 TS 知道 tag 是 string 了，不会再报错 */}
+            {frontmatter.tags.map((tag: string) => (
+              <a href={`/tags/${tag}`} class="tag-item">#{tag}</a>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      <div class="content">
+        <slot />
+      </div>
+    </article>
 
     <style>
+      /* 全局布局 */
       body {
-        max-width: 680px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        max-width: 640px;
         margin: 0 auto;
-        padding: 4rem 2rem;
-        font-family: system-ui, -apple-system, sans-serif;
-        color: #111;
-        line-height: 1.8; /* 正文行高大一点，阅读舒服 */
+        padding: 4rem 1.5rem;
+        color: #333;
+        line-height: 1.7;
       }
 
+      /* 返回链接 */
       .back-link {
         display: inline-block;
         margin-bottom: 2rem;
+        color: #bbb;
         text-decoration: none;
-        color: #666;
         font-size: 0.9rem;
       }
-      .back-link:hover { text-decoration: underline; color: #000; }
-
-      h1 {
-        font-size: 2.5rem;
-        font-weight: 900;
-        margin-bottom: 0.5rem;
-        letter-spacing: -1px;
+      .back-link:hover { color: #333; }
+      
+      /* 标题 */
+      h1 { 
+        font-size: 2.2rem; 
+        margin-bottom: 0.5rem; 
+        letter-spacing: -0.05rem; 
+        line-height: 1.2;
+        color: #111;
       }
 
-      .meta {
-        color: #888;
-        margin-bottom: 3rem;
-        font-size: 0.9rem;
+      /* 元信息区域 */
+      .meta-container {
+        display: flex;
+        align-items: center; 
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 3rem; 
+        font-size: 0.95rem;
+        color: #999;
       }
 
-      /* 针对 Markdown 内容的样式 */
-      main :global(h2) { font-size: 1.8rem; margin-top: 2rem; font-weight: 700; }
-      main :global(p) { margin-bottom: 1.5rem; }
-      main :global(strong) { font-weight: 800; }
-      main :global(a) { color: #000; text-decoration: underline; }
+      .date {
+        font-family: monospace;
+      }
+
+      /* 标签列表 */
+      .tags-list {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      /* 标签样式：纯净无色 */
+      .tag-item {
+        color: #999 !important;
+        text-decoration: none;
+        background: none;
+        padding: 0;
+        border: none;
+      }
+      
+      .tag-item:hover {
+        color: #555 !important; 
+        text-decoration: underline;
+      }
+      
+      /* 图片限制 */
+      article :global(img) {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        margin: 1.5rem 0;
+      }
+      
+      /* 正文链接 */
+      .content :global(a) {
+        color: #0066cc;
+        text-decoration: none;
+      }
+      .content :global(a):hover {
+        text-decoration: underline;
+      }
     </style>
   </body>
 </html>

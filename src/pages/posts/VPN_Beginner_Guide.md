@@ -2,12 +2,9 @@
 layout: ../../layouts/PostLayout.astro
 slug: "VPN_Beginner_Guide"
 title: "VPN/梯子/翻墙是什么？"
-description: "介绍VPN/梯子/翻墙是什么的文章"
-date: 2025-11-18T12:00:00
-author: "iuui"
-tags: ["VPN", "网络"]
-featured: true
-editable: true
+date: "2025-12-18"
+description: "VPN/梯子/翻墙是什么？"
+tags: ["VPN"]
 ---
 ## 前言：为什么听不懂他们在说什么？
 你可能经常听到别人说“挂梯子”、“买机场”、“换个节点”、“开全局”……这些词分开认识，合在一起就不知道是在干嘛。其实，这一行的术语多是因为由于各种原因（你懂的），大家不能直白地说，所以发明了一套“黑话”。

@@ -2,12 +2,9 @@
 layout: ../../layouts/PostLayout.astro
 slug: "iuui-VPNerror"
 title: "为什么使用VPN相关软件后，再次开机无法正常使用网络"
+date: "2025-12-18"
 description: "为什么使用VPN相关软件后，再次开机无法正常使用网络"
-date: 2025-11-18
-author: "iuui"
-tags: ["网络故障", "VPN"]
-featured: true
-editable: true
+tags: ["VPN"]
 ---
 ## 问题描述：
 使用翻墙/VPN等网络软件后，再次启动电脑无法正常连接使用网络

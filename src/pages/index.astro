@@ -1,4 +1,5 @@
 ---
+
 // 1. JS 区域
 const pageTitle = "iuui";
 const description = "欢迎，希望有所帮助！";
@@ -11,8 +12,25 @@ const posts = allPosts.sort((a, b) => {
   return new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf();
 });
 
-// 收集标签
-const tags = [...new Set(posts.map((post) => post.frontmatter.tags).flat())];
+// 👇 3. 收集标签并排序（按文章数量从多到少）
+const allTags = posts
+  .map((post) => post.frontmatter.tags)
+  .flat()
+  .filter((tag) => typeof tag === "string");
+
+// 统计每个标签的出现次数
+// 👇 修复点：加了 as Record<string, number>，告诉 TS 这是一个“字符串对应数字”的对象
+const tagCounts = allTags.reduce((acc, tag) => {
+  acc[tag] = (acc[tag] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>); 
+
+// 排序
+const tags = Object.keys(tagCounts).sort((a, b) => {
+  const countDiff = tagCounts[b] - tagCounts[a];
+  return countDiff !== 0 ? countDiff : a.localeCompare(b);
+});
+
 ---
 
 <html lang="zh-cn">
